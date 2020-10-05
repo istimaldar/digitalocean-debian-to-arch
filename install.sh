@@ -78,6 +78,9 @@ target_filesystem="ext4"
 # NOT EXPOSED NORMALLY: don't prompt
 continue_without_prompting=0
 
+# Save root user home folder
+save_root_home_folder=0
+
 # NOT EXPOSED NORMALLY: path to metadata service
 # DigitalOcean metadata API
 # https://developers.digitalocean.com/documentation/metadata/
@@ -184,6 +187,12 @@ parse_flags() {
 					shift
 					break
 					;;
+			  --save_root_user)
+			    save_root_home_folder=1
+			    conf_key=option_acknowledged
+			    shift
+			    break
+			    ;;
 				--help)
 					print_help_and_exit
 					;;
@@ -775,6 +784,11 @@ stage4_convert_exit() {
 	exec /bin/bash
 }
 
+backup_root_folder() {
+  (( save_root_home_folder )) && return 0
+  cp -R /root/. /archroot/root/
+}
+
 stage4_convert() {
 	# /dev/console doesn't work, log to /dev/tty0
 	exec </dev/tty0
@@ -848,6 +862,9 @@ stage4_convert() {
 	chroot /archroot mkdir -p /boot/grub
 	chroot /archroot grub-mkconfig -o /boot/grub/grub.cfg
 	chroot /archroot grub-install /dev/vda
+
+	backup_root_folder
+
 	umount /archroot/dev
 	umount /archroot/sys
 	umount /archroot/proc

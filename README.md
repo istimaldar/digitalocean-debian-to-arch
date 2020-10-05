@@ -12,6 +12,12 @@ This script may cause your VPS to become unbootable.
 I only recommend running this script on newly created droplets with no
 important data.
 
+Why fork?
+---------
+Original script drops all data, including authorized_keys.
+Normally it's not a problem, but it creates problems with packer.
+This fork copy content of root folder.
+
 Installation
 ------------
 1. Create a new Debian 9.x droplet (either 32-bit or 64-bit is fine).
